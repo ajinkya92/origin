@@ -13,11 +13,19 @@ class FirstViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
+    let defaults = UserDefaults.standard
+    
     var items = ["Go to Udemy", "Add Course to Cart", "Buy The Course"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Getting item from User Defaults
+        
+        if let item = defaults.array(forKey: "TodoListArray") as? [String] {
+            
+            items = item
+        }
         
     }
     
@@ -32,6 +40,7 @@ class FirstViewController: UIViewController {
             if let userEnteredText = itemText.text {
                 
                 self.items.append(userEnteredText)
+                self.defaults.set(self.items, forKey: "TodoListArray")
                 
                 self.tableView.reloadData()
                 
