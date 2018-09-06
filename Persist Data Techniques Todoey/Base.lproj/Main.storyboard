@@ -13,7 +13,7 @@
         <!--Todoey-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Persist_Data_Techniques_Todoey" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FirstViewController" id="BYZ-38-t0r" customClass="FirstViewController" customModule="Persist_Data_Techniques_Todoey" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -36,7 +36,16 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Todoey" id="sW4-X4-vl3"/>
+                    <navigationItem key="navigationItem" title="Todoey" id="sW4-X4-vl3">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="j6c-fK-RZX">
+                            <connections>
+                                <action selector="addButtonTapped:" destination="BYZ-38-t0r" id="wEh-c0-HM9"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="tableView" destination="DQG-ix-LVQ" id="OEq-Pu-A5o"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
