@@ -15,18 +15,33 @@ class FirstViewController: UIViewController {
     
     let defaults = UserDefaults.standard
     
-    var items = ["Go to Udemy", "Add Course to Cart", "Buy The Course"]
-
+    var items = [Item]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Getting item from User Defaults
         
-        if let item = defaults.array(forKey: "TodoListArray") as? [String] {
-            
-            items = item
-        }
+                if let item = defaults.array(forKey: "TodoListArray") as? [Item] {
         
+                    items = item
+                }
+        
+        
+        let newItem1 = Item()
+        newItem1.title = "Hello Kitty"
+        newItem1.isChecked = false
+        items.append(newItem1)
+        
+        let newItem2 = Item()
+        newItem2.title = "Hello Kitty1"
+        newItem2.isChecked = true
+        items.append(newItem2)
+        
+        let newItem3 = Item()
+        newItem3.title = "Hello Kitty2"
+        newItem3.isChecked = false
+        items.append(newItem3)
     }
     
     @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
@@ -37,14 +52,14 @@ class FirstViewController: UIViewController {
         
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
             
-            if let userEnteredText = itemText.text {
-                
-                self.items.append(userEnteredText)
-                self.defaults.set(self.items, forKey: "TodoListArray")
-                
-                self.tableView.reloadData()
-                
-            }
+            let newItem = Item()
+            
+            newItem.title = itemText.text!
+            
+            self.items.append(newItem)
+            self.defaults.set(self.items, forKey: "TodoListArray")
+            
+            self.tableView.reloadData()
             
             
         }
@@ -64,7 +79,7 @@ class FirstViewController: UIViewController {
         
     }
     
-
+    
     
 }
 
@@ -79,22 +94,40 @@ extension FirstViewController: UITableViewDelegate, UITableViewDataSource {
         
         let cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
         
-        cell.textLabel?.text = items[indexPath.row]
+        let item = items[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        
+//        if items[indexPath.row].isChecked == true {
+//            cell.accessoryType = .checkmark
+//        }
+//        else {
+//
+//            cell.accessoryType = .none
+//        }
+        
+        cell.accessoryType = item.isChecked ? .checkmark : .none  // One line Syntax for above lines
+        
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-            
-        }
-        else {
-            
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        //        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+        //
+        //            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+        //
+        //        }
+        //        else {
+        //
+        //            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        //        }
+
+        
+        items[indexPath.row].isChecked = !items[indexPath.row].isChecked // Single Line Replacement
+        
+        tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
         
