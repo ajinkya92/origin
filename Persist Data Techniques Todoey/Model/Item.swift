@@ -8,7 +8,9 @@
 
 import Foundation
 
-class Item {
+// Rather than Encodable and Decodeable use Codable
+
+class Item: Codable {
     
     var isChecked = Bool()
     var title = String()

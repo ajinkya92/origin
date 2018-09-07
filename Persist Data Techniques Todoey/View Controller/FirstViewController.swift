@@ -13,35 +13,30 @@ class FirstViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    let defaults = UserDefaults.standard
+    
+    // let defaults = UserDefaults.standard
+    
+    let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")  // Save P-List to this path. -> Make the Model Class Encodable
     
     var items = [Item]()
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Getting item from User Defaults
         
-                if let item = defaults.array(forKey: "TodoListArray") as? [Item] {
+        //                if let item = defaults.array(forKey: "TodoListArray") as? [Item] {
+        //
+        //                    items = item
+        //                }
         
-                    items = item
-                }
         
         
-        let newItem1 = Item()
-        newItem1.title = "Hello Kitty"
-        newItem1.isChecked = false
-        items.append(newItem1)
+        print(filePath!)
         
-        let newItem2 = Item()
-        newItem2.title = "Hello Kitty1"
-        newItem2.isChecked = true
-        items.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "Hello Kitty2"
-        newItem3.isChecked = false
-        items.append(newItem3)
+        loadItems()
     }
     
     @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
@@ -57,9 +52,12 @@ class FirstViewController: UIViewController {
             newItem.title = itemText.text!
             
             self.items.append(newItem)
-            self.defaults.set(self.items, forKey: "TodoListArray")
             
-            self.tableView.reloadData()
+            // To encode items in the P-list
+            
+            self.saveData()
+            
+            //   self.defaults.set(self.items, forKey: "TodoListArray")
             
             
         }
@@ -79,6 +77,50 @@ class FirstViewController: UIViewController {
         
     }
     
+    // This is where the plist functions are carried on
+    
+    func saveData() {
+        
+        let encoder = PropertyListEncoder()
+        
+        do{
+            
+            let data = try encoder.encode(items)
+            
+            if let givenPath = filePath {
+                
+                try data.write(to: givenPath)
+            }
+            self.tableView.reloadData()
+            
+        }catch{
+            
+            print(error.localizedDescription)
+        }
+        
+        
+    }
+    
+    // To load items from Plist - Item Class must confirm to Decodable Protocol
+    
+    func loadItems() {
+        
+        if let data = try? Data(contentsOf: filePath!) {
+            
+            let decoder = PropertyListDecoder()
+            
+            do{
+                
+                items = try decoder.decode([Item].self, from: data)
+            }
+            catch{
+                
+                print(error.localizedDescription)
+            }
+        }
+        
+        
+    }
     
     
 }
@@ -98,13 +140,13 @@ extension FirstViewController: UITableViewDelegate, UITableViewDataSource {
         
         cell.textLabel?.text = item.title
         
-//        if items[indexPath.row].isChecked == true {
-//            cell.accessoryType = .checkmark
-//        }
-//        else {
-//
-//            cell.accessoryType = .none
-//        }
+        //        if items[indexPath.row].isChecked == true {
+        //            cell.accessoryType = .checkmark
+        //        }
+        //        else {
+        //
+        //            cell.accessoryType = .none
+        //        }
         
         cell.accessoryType = item.isChecked ? .checkmark : .none  // One line Syntax for above lines
         
@@ -123,11 +165,11 @@ extension FirstViewController: UITableViewDelegate, UITableViewDataSource {
         //
         //            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
         //        }
-
+        
         
         items[indexPath.row].isChecked = !items[indexPath.row].isChecked // Single Line Replacement
         
-        tableView.reloadData()
+        saveData()
         
         tableView.deselectRow(at: indexPath, animated: true)
         
