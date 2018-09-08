@@ -7,36 +7,23 @@
 //
 
 import UIKit
+import CoreData
 
 class FirstViewController: UIViewController {
     
     
     @IBOutlet weak var tableView: UITableView!
     
-    
-    // let defaults = UserDefaults.standard
-    
-    let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")  // Save P-List to this path. -> Make the Model Class Encodable
-    
     var items = [Item]()
     
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Getting item from User Defaults
-        
-        //                if let item = defaults.array(forKey: "TodoListArray") as? [Item] {
-        //
-        //                    items = item
-        //                }
-        
-        
-        
-        print(filePath!)
-        
         loadItems()
+        
     }
     
     @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
@@ -47,18 +34,14 @@ class FirstViewController: UIViewController {
         
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
             
-            let newItem = Item()
+            let newItem = Item(context: self.context)
             
-            newItem.title = itemText.text!
+            newItem.title = itemText.text
+            newItem.isDone = false
             
             self.items.append(newItem)
             
-            // To encode items in the P-list
-            
-            self.saveData()
-            
-            //   self.defaults.set(self.items, forKey: "TodoListArray")
-            
+            self.saveItems()
             
         }
         
@@ -77,53 +60,53 @@ class FirstViewController: UIViewController {
         
     }
     
-    // This is where the plist functions are carried on
+   
     
-    func saveData() {
-        
-        let encoder = PropertyListEncoder()
+}
+
+// MARK: Core Data Functionality
+
+extension FirstViewController {
+    
+    func saveItems() {
         
         do{
             
-            let data = try encoder.encode(items)
+            try context.save()
             
-            if let givenPath = filePath {
-                
-                try data.write(to: givenPath)
-            }
-            self.tableView.reloadData()
-            
-        }catch{
+        }
+        catch{
             
             print(error.localizedDescription)
         }
         
+        tableView.reloadData()
         
     }
-    
-    // To load items from Plist - Item Class must confirm to Decodable Protocol
     
     func loadItems() {
         
-        if let data = try? Data(contentsOf: filePath!) {
+        do{
             
-            let decoder = PropertyListDecoder()
+            items = try context.fetch(Item.fetchRequest())
+        }
+        catch{
             
-            do{
-                
-                items = try decoder.decode([Item].self, from: data)
-            }
-            catch{
-                
-                print(error.localizedDescription)
-            }
+            print(error.localizedDescription)
         }
         
+        tableView.reloadData()
         
     }
     
     
+    
 }
+
+
+
+
+
 
 extension FirstViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -148,7 +131,7 @@ extension FirstViewController: UITableViewDelegate, UITableViewDataSource {
         //            cell.accessoryType = .none
         //        }
         
-        cell.accessoryType = item.isChecked ? .checkmark : .none  // One line Syntax for above lines
+        cell.accessoryType = item.isDone ? .checkmark : .none  // One line Syntax for above lines
         
         
         return cell
@@ -166,10 +149,14 @@ extension FirstViewController: UITableViewDelegate, UITableViewDataSource {
         //            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
         //        }
         
+       // items[indexPath.row].setValue("Completed", forKey: "title")
         
-        items[indexPath.row].isChecked = !items[indexPath.row].isChecked // Single Line Replacement
+       // items[indexPath.row].isDone = !items[indexPath.row].isDone // Single Line Replacement
         
-        saveData()
+        context.delete(items[indexPath.row])
+        items.remove(at: indexPath.row)
+    
+        saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -179,4 +166,5 @@ extension FirstViewController: UITableViewDelegate, UITableViewDataSource {
     
     
 }
+
 
